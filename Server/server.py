@@ -2,17 +2,22 @@
 # Author: Ze Li
 # Date: 2024-09-01
 
+# We need to modify server address in bitmapcollector.kt 
+
 # Import necessary libraries
 import socket
 import tensorflow as tf
 import numpy as np
 import base64 # To decode base64 images from client
 import io # To convert bytes to image   
-from PIL import Image
-
+from PIL import Image, ImageFile 
+import time
+import threading
 
 HOST = '0.0.0.0'
 PORT = 4545
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 
@@ -29,8 +34,18 @@ if gpus:
 
 
 # Load the TFLite model and allocate tensors.
-models = {"deeplabv3":tf.lite.Interpreter(model_path=".\deeplabv3.tflite"),
-          "mnist":tf.lite.Interpreter(model_path=".\mnist.tflite")}
+models = {
+          0:tf.lite.Interpreter(model_path=".\deconv_fin_munet.tflite"),
+          1:tf.lite.Interpreter(model_path=".\mobilenet_v2_1.0_224_quant.tflite"),
+          2:tf.lite.Interpreter(model_path=".\mobilenet_v1_1.0_224_quant.tflite"),
+          3:tf.lite.Interpreter(model_path=".\ssd_mobilenet_v1_1_metadata_1.tflite"),
+          4:tf.lite.Interpreter(model_path=".\mobilenetDetv1.tflite"),
+          5:tf.lite.Interpreter(model_path=".\efficientclass-lite0.tflite"),
+          6:tf.lite.Interpreter(model_path=".\inception_v1_224_quant.tflite"),  
+          7:tf.lite.Interpreter(model_path=".\mobilenetClassv1.tflite"),        
+          8:tf.lite.Interpreter(model_path=".\deeplabv3.tflite"),
+          9:tf.lite.Interpreter(model_path=".\model_metadata.tflite"),
+          10:tf.lite.Interpreter(model_path=".\mnist.tflite")}
 
 for interpreter in models.values():
     interpreter.allocate_tensors()
@@ -43,66 +58,106 @@ def preprocess_image(image, input_shape):
     image = np.expand_dims(image, axis=0)  # expand dimensions to fit expected input shape
     return image
 
-# Run inference
-def run_inference(interpreter, image):
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-    interpreter.set_tensor(input_details[0]['index'], image)
-    interpreter.invoke()
-    return interpreter.get_tensor(output_details[0]['index'])
 
 # Handle message from client
-def handle_message(client_socket):
+def handle_client(client_socket):
     try:
-        data_buffer = client_socket.recv(1024 * 1024) # 1MB buffer to receive data
-        if not data_buffer:
-            return
-        
+        # Receive data from the client
+        data = b""
+        while True:
+            packet = client_socket.recv(4096)
+            if not packet:
+                break
+            # Check if the client has finished sending data
+            if b"finish" in packet:
+                break
+            data += packet
+        data = data.decode('utf-8')
         print("Received data from client")
-        print(f"Data: {data_buffer}")
-        # Get model name and image from message
-        # The message format is: {model_name}::{image as bytes}
-        data_str = data_buffer.decode("utf-8")
-        model_name, base64_images = data_str.split("::")
 
-        # Make sure the model name is valid
-        if model_name not in models:
-            print(f"Model {model_name} not found")
+        startProcessingTime = time.perf_counter()
+
+        client_socket.send("RECEIVED".encode('utf-8'))
+        # Split the data into model index and image data
+        model_index_data, image_data = data.split(":", 1)
+
+        
+
+        # Convert the model index to an integer
+        model_index = int(model_index_data)
+
+        # Validate model index
+        if model_index not in models:
+            print(f"Invalid model index: {model_index}")
+            client_socket.send("Invalid model index".encode('utf-8'))
             return
         
-        # Get the interpreter and image data
-        interpreter = models[model_name]
-        # Decode the base64 image
-        image_data = base64.b64decode(base64_images)
-        image = Image.open(io.BytesIO(image_data)) # Convert bytes to image
-        # Preprocess the image
-        input_shape = interpreter.get_input_details()[0]['shape']
-        image = preprocess_image(image, input_shape)
-        # Run inference
-        output = run_inference(interpreter, image).tolist()
-        print(f"Output: {output}")
-        # Send the output back to the client
-        client_socket.send("ACK".encode("utf-8"))   # Send acknowledgment to client
-        client_socket.sendall(str(output).encode("utf-8")) # Send the output back to the client
 
-    except:
-        print("Error receiving data")
-        return
+        # Get the appropriate model interpreter
+        interpreter = models[model_index]
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+
+        # Check if the model expects a base64 image
+        missing_padding = len(image_data) % 4
+        if missing_padding:
+            image_data += '=' * (4 - missing_padding)
+
+        print(len(image_data) % 4) 
+        # Decode the base64 image data
+        image_data = base64.b64decode(image_data)
+        image = Image.open(io.BytesIO(image_data))
+        input_data = preprocess_image(image, input_details[0]['shape'])
+
+        # Run inference
+        
+        interpreter.set_tensor(input_details[0]['index'], input_data)
+        interpreter.invoke()
+        endProcessingTime = time.perf_counter()
+
+        # Calculate processing latency
+        processing_latency = (endProcessingTime - startProcessingTime) * 1000  # Convert to milliseconds
+
+        # Get the result from the output tensor
+        output_data = interpreter.get_tensor(output_details[0]['index'])
+        result = output_data.tolist()
+
+        # Send a confirmation message that the server has received and processed the request
+        #sclient_socket.send("Processing complete. Sending result...".encode('utf-8'))
+
+        # Send the processing latency and result back to the client
+        result_str = f"{processing_latency}:{result}"
+        client_socket.send(result_str.encode('utf-8'))
+
+        print(f"Model processing latency: {processing_latency} ms")
+
+    except Exception as e:
+        print(f"Error handling client: {e}")
     finally:
         client_socket.close()
+
+
+
+
+
 
 
 def startServer():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST, PORT))
-    s.listen(1)
-    conn, addr = s.accept()
-    print('Connected by', addr)
-
+    s.listen(5)  # allow 5 connections to be queued
     print("Server is running")
     print("Waiting for client to send data")
+
     while True:
-        handle_message(conn)
+        conn, addr = s.accept()
+        print('Connected by', addr)
+        handle_client(conn)
+
+        # Start a new thread to handle the client
+        # client_thread = threading.Thread(target=handle_client, args=(conn,))
+        # client_thread.start()
+
 
 
 if __name__ == "__main__":
