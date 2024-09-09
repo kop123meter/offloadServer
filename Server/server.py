@@ -19,6 +19,8 @@ PORT = 4545
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+MAX_NUM_THREADS = 10
+
 
 
 
@@ -28,6 +30,7 @@ if gpus:
     try:
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
+            print("GPU memory growth is enabled")
     except RuntimeError as e:
         print(e)
 
@@ -49,18 +52,60 @@ models = {
 
 for interpreter in models.values():
     interpreter.allocate_tensors()
+    #print("TensorFlow Lite supports set_num_threads:", hasattr(interpreter, 'set_num_threads'))
+    # input_details = interpreter.get_input_details()
+    
+    
+    # print("*"*50)
 
+def preprocess_image(image, model_input_details):
+    """
+    Preprocesses the image according to the model's input requirements.
 
-# Get input and output tensors.
-def preprocess_image(image, input_shape):
-    image = image.resize((input_shape[2], input_shape[1]))
-    image = np.array(image).astype(np.float32)
-    image = np.expand_dims(image, axis=0)  # expand dimensions to fit expected input shape
+    Args:
+    image (PIL.Image): The input image.
+    model_input_details (dict): A dictionary containing the model's input details.
+
+    Returns:
+    numpy.ndarray: The preprocessed image tensor.
+    """
+    # Extract input details for the first model (assuming it's the one you're using)
+    input_dict = model_input_details[0]
+    input_shape = input_dict['shape']
+    
+    # Resize image to match the input dimensions required by the model
+    image = image.resize((input_shape[2], input_shape[1]), Image.Resampling.LANCZOS)
+
+    # Convert image to numpy array and adjust type accordingly
+    image = np.array(image)
+    if input_dict['dtype'] == np.float32:
+        image = image.astype(np.float32)
+        # Normalize image if there are no quantization parameters, or adjust according to them
+        if 'quantization_parameters' in input_dict and input_dict['quantization_parameters']['scales'].size > 0:
+            scale = input_dict['quantization_parameters']['scales'][0]
+            zero_point = input_dict['quantization_parameters']['zero_points'][0]
+            image = (image - zero_point) * scale
+        else:
+            image = image / 255.0
+    else:
+        image = image.astype(np.uint8)
+        if 'quantization_parameters' in input_dict and input_dict['quantization_parameters']['scales'].size > 0:
+            scale = input_dict['quantization_parameters']['scales'][0]
+            zero_point = input_dict['quantization_parameters']['zero_points'][0]
+            image = ((image - zero_point) * scale).astype(np.uint8)
+
+    # Add batch dimension
+    image = np.expand_dims(image, axis=0)
+
     return image
 
 
 # Handle message from client
 def handle_client(client_socket):
+    '''
+    This function handles the client connection and processes the data received from the client.Data
+    Data format: model_index:data_length:image_data
+    '''
     try:
         # Receive data from the client
         data = b""
@@ -70,6 +115,7 @@ def handle_client(client_socket):
                 break
             # Check if the client has finished sending data
             if b"finish" in packet:
+                data += packet.replace(b"finish", b"")
                 break
             data += packet
         data = data.decode('utf-8')
@@ -79,7 +125,10 @@ def handle_client(client_socket):
 
         client_socket.send("RECEIVED".encode('utf-8'))
         # Split the data into model index and image data
-        model_index_data, image_data = data.split(":", 1)
+        model_index_data, data_length ,image_data = data.split(":", 2)
+        print("data_length:", data_length)  # This is the length of the image data
+        print("actual length:", len(image_data))  # This is the model index
+       
 
         
 
@@ -92,27 +141,72 @@ def handle_client(client_socket):
             client_socket.send("Invalid model index".encode('utf-8'))
             return
         
+       
+        
+      
+        
 
         # Get the appropriate model interpreter
         interpreter = models[model_index]
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
+        
+        testStartTimer = time.perf_counter()
 
+        if isinstance(image_data, bytes):
+            image_data = image_data.decode('utf-8')
+        
+        image_data = image_data.strip()
+        print("Base64 string length before padding:", len(image_data))
         # Check if the model expects a base64 image
         missing_padding = len(image_data) % 4
         if missing_padding:
             image_data += '=' * (4 - missing_padding)
 
-        print(len(image_data) % 4) 
-        # Decode the base64 image data
-        image_data = base64.b64decode(image_data)
-        image = Image.open(io.BytesIO(image_data))
-        input_data = preprocess_image(image, input_details[0]['shape'])
+        print("Base64 string length after padding:", len(image_data))
+        print("Remainder when divided by 4 (should be 0):", len(image_data) % 4)
+      
 
+        try:
+            image_data = base64.b64decode(image_data)
+        except Exception as e:
+            print(f"Error decoding image: {e}")
+            client_socket.send(f"Error decoding image: {e}".encode('utf-8'))
+            return
+
+        # 确保解码后的数据不是 None
+        if image_data is None:
+            print("Decoded image data is None.")
+            client_socket.send("Decoded image data is None.".encode('utf-8'))
+            return
+
+        # 使用 io.BytesIO 来打开图像
+        try:
+            image = Image.open(io.BytesIO(image_data))
+        except Exception as e:
+            print(f"Error opening image: {e}")
+            client_socket.send(f"Error opening image: {e}".encode('utf-8'))
+            return
+
+        
+        # Preprocess the image
+        testEndTimer = time.perf_counter() 
+        print(f"Image preprocessing time for decode: {(testEndTimer - testStartTimer) * 1000 } ms")
+
+        timer1 = time.perf_counter()
+        input_data = preprocess_image(image, input_details)
+        timer2 = time.perf_counter()
+        print(f"Image preprocessing time for preprocessing data: {(timer2 - timer1) * 1000} ms")
+        
         # Run inference
         
+        timer3 = time.perf_counter()
+    
         interpreter.set_tensor(input_details[0]['index'], input_data)
         interpreter.invoke()
+
+        timer4 = time.perf_counter()
+        print(f"Model processing time: {(timer4 - timer3) * 1000} ms")
         endProcessingTime = time.perf_counter()
 
         # Calculate processing latency
@@ -152,13 +246,13 @@ def startServer():
     while True:
         conn, addr = s.accept()
         print('Connected by', addr)
-        handle_client(conn)
+        # handle_client(conn)
 
         # Start a new thread to handle the client
-        # client_thread = threading.Thread(target=handle_client, args=(conn,))
-        # client_thread.start()
+        client_thread = threading.Thread(target=handle_client, args=(conn,))
+        client_thread.start()
 
 
 
 if __name__ == "__main__":
-    startServer()
+   startServer()
