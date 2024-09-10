@@ -13,6 +13,8 @@ import io # To convert bytes to image
 from PIL import Image, ImageFile 
 import time
 import threading
+import warnings
+warnings.simplefilter("error")
 
 HOST = '0.0.0.0'
 PORT = 4545
@@ -220,6 +222,10 @@ def handle_client(client_socket):
         #sclient_socket.send("Processing complete. Sending result...".encode('utf-8'))
 
         # Send the processing latency and result back to the client
+
+        #TODO
+        # Current Best Network Latency is still high 
+        # Maybe we can compress result data
         result_str = f"{processing_latency}:{result}"
         client_socket.send(result_str.encode('utf-8'))
 
