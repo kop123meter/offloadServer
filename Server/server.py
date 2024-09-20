@@ -31,8 +31,9 @@ gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
     try:
         for gpu in gpus:
+            tf.config.experimental.set_visible_devices(devices=gpu,device_type='GPU')
             tf.config.experimental.set_memory_growth(gpu, True)
-            print("GPU memory growth is enabled")
+            print("GPU Setting up!")
     except RuntimeError as e:
         print(e)
 
@@ -160,6 +161,7 @@ def handle_client(client_socket):
         
         image_data = image_data.strip()
         print("Base64 string length before padding:", len(image_data))
+        
         # Check if the model expects a base64 image
         missing_padding = len(image_data) % 4
         if missing_padding:
@@ -176,13 +178,13 @@ def handle_client(client_socket):
             client_socket.send(f"Error decoding image: {e}".encode('utf-8'))
             return
 
-        # 确保解码后的数据不是 None
+        # Check if the image data is None
         if image_data is None:
             print("Decoded image data is None.")
             client_socket.send("Decoded image data is None.".encode('utf-8'))
             return
 
-        # 使用 io.BytesIO 来打开图像
+        # Open the image
         try:
             image = Image.open(io.BytesIO(image_data))
         except Exception as e:

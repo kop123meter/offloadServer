@@ -8,6 +8,8 @@ rewards = []
 tris_counts = []
 AI_dict = {}  # {model_index: [latencies]}
 AI_info_dict = {}  # {model_index: device_index}
+colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']  # Added white color for visibility on many backgrounds
+devs = ["CPU", "GPU", "NNAPI", "SERVER"]
 
 # Server to receive data from clients
 def socket_server():
@@ -33,12 +35,11 @@ def socket_server():
                     tris_counts.append(float(current_tris))
                 elif data_type == "time":
                     time, device_index, model_index = received_data.split(",",2)
-                    print(f"time: {time} device: {device_index} model_index :{model_index}")
+                    device_index = int(device_index)  # Ensure device index is an integer
                     if model_index not in AI_dict:
                         AI_dict[model_index] = []
-                        AI_info_dict[model_index] = device_index
+                    AI_info_dict[model_index] = device_index
                     AI_dict[model_index].append(float(time))
-
             except ValueError:
                 print("Invalid data received")
 
@@ -51,7 +52,6 @@ def update_plot(i):
     ax2.clear()
     ax3.clear()
 
-    # Plot rewards and triangle counts
     ax1.set_title('Reward')
     ax1.plot(rewards, label='Reward', color='r')
     ax1.legend(loc='upper left')
@@ -64,13 +64,15 @@ def update_plot(i):
     ax2.set_xlabel('Episodes')
     ax2.set_ylabel('Triangle Count')
 
-    # Plot response times for each AI model index
     ax3.set_title('Response Times by AI Model')
+    color_index = 0
+    
     for model_index, times in AI_dict.items():
-        color = 'g' if AI_info_dict[model_index] == '3' else 'y'  # Green if device index is 3, magenta otherwise
-        print(f"{model_index}:::::::::::::::{AI_info_dict[model_index]} ::::::::::    {color}")
-        
-        ax3.plot(times, label=f'Model {model_index} (Device {AI_info_dict[model_index]})', color=color)
+        device_name = devs[AI_info_dict[model_index]]
+        print("************Device : " + device_name)
+        color = colors[color_index % len(colors)]
+        ax3.plot(times, label=f'Model {model_index} (Device {device_name})', color=color)
+        color_index += 1
     ax3.legend(loc='upper left')
     ax3.set_xlabel('Time Points')
     ax3.set_ylabel('Response Time (ms)')
@@ -86,7 +88,7 @@ if __name__ == '__main__':
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 10))
 
     # Start animation for dynamic plotting
-    ani = animation.FuncAnimation(fig, update_plot, interval=1000)
+    ani = animation.FuncAnimation(fig, update_plot, interval=10)
     plt.show()
 
     # Ensure the server thread ends gracefully
