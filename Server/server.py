@@ -13,8 +13,9 @@ import io # To convert bytes to image
 from PIL import Image, ImageFile 
 import time
 import threading
-import warnings
-warnings.simplefilter("error")
+
+from tensorflow.keras.mixed_precision import experimental as mixed_precision
+
 
 HOST = '0.0.0.0'
 PORT = 4545
@@ -25,9 +26,9 @@ MAX_NUM_THREADS = 10
 
 
 
-
 #Using GPU memory growth
 gpus = tf.config.experimental.list_physical_devices('GPU')
+
 if gpus:
     try:
         for gpu in gpus:
@@ -36,6 +37,9 @@ if gpus:
             print("GPU Setting up!")
     except RuntimeError as e:
         print(e)
+
+
+
 
 
 
@@ -231,7 +235,7 @@ def handle_client(client_socket):
         result_str = f"{processing_latency}:{result}"
         client_socket.send(result_str.encode('utf-8'))
 
-        print(f"Model processing latency: {processing_latency} ms")
+        print(f"Total processing latency: {processing_latency} ms")
 
     except Exception as e:
         print(f"Error handling client: {e}")
