@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import time
 import tensorflow as tf
+from PIL import Image
  
  
 print(tf.__version__)
@@ -12,16 +13,87 @@ print('GPU:',tf.config.list_physical_devices('GPU'))
 print('CPU:',tf.config.list_physical_devices(device_type='CPU'))
 print(tf.config.list_physical_devices('GPU'))
 print(tf.test.is_gpu_available())
+gpu_delegate = tf.lite.experimental.load_delegate('tensorflowlite_gpu.dll')  # 对于 Windows 系统
+interpreter = tf.lite.Interpreter(
+    model_path="Server/mobilenet_v1_1.0_224_quant.tflite",
+    experimental_delegates=[gpu_delegate]
+)
 
+print("*"*50)
+models = {
+          0:tf.lite.Interpreter(model_path="Server\deconv_fin_munet.tflite", experimental_delegates=[tf.lite.load_delegate('libedgetpu.so.1')]),
+          1:tf.lite.Interpreter(model_path="Server\mobilenet_v2_1.0_224_quant.tflite"),
+          2:tf.lite.Interpreter(model_path="Server\mobilenet_v1_1.0_224_quant.tflite"),
+          3:tf.lite.Interpreter(model_path="Server\ssd_mobilenet_v1_1_metadata_1.tflite"),
+          4:tf.lite.Interpreter(model_path="Server\mobilenetDetv1.tflite"),
+          5:tf.lite.Interpreter(model_path="Server\efficientclass-lite0.tflite"),
+          6:tf.lite.Interpreter(model_path="Server\inception_v1_224_quant.tflite"),  
+          7:tf.lite.Interpreter(model_path="Server\mobilenetClassv1.tflite"),        
+          8:tf.lite.Interpreter(model_path="Server\deeplabv3.tflite"),
+          9:tf.lite.Interpreter(model_path="Server\model_metadata.tflite"),
+          10:tf.lite.Interpreter(model_path="Server\mnist.tflite")}
+
+model_name ={0:"deconv_fin_munet",
+             1:"mobilenet_v2_1.0_224_quant",
+             2:"mobilenet_v1_1.0_224_quant",
+             3:"ssd_mobilenet_v1_1_metadata_1",
+             4:"mobilenetDetv1",
+             5:"efficientclass-lite0",
+             6:"inception_v1_224_quant",
+             7:"mobilenetClassv1",
+             8:"deeplabv3",
+             9:"model_metadata",
+             10:"mnist"}
  
- 
+for i in range(11):
+    models[i].allocate_tensors()
+    print(f"{model_name[i]} Model Loaded Successfully!")
+
+def preprocess_image(image, model_input_details):
+    """
+    Preprocesses the image according to the model's input requirements.
+
+    Args:
+    image (PIL.Image): The input image.
+    model_input_details (dict): A dictionary containing the model's input details.
+
+    Returns:
+    numpy.ndarray: The preprocessed image tensor.
+    """
+    # Extract input details for the first model (assuming it's the one you're using)
+    input_dict = model_input_details[0]
+    input_shape = input_dict['shape']
+    
+    # Resize image to match the input dimensions required by the model
+    image = image.resize((input_shape[2], input_shape[1]), Image.Resampling.LANCZOS)
+
+    # Convert image to numpy array and adjust type accordingly
+    image = np.array(image)
+    if input_dict['dtype'] == np.float32:
+        image = image.astype(np.float32)
+        # Normalize image if there are no quantization parameters, or adjust according to them
+        if 'quantization_parameters' in input_dict and input_dict['quantization_parameters']['scales'].size > 0:
+            scale = input_dict['quantization_parameters']['scales'][0]
+            zero_point = input_dict['quantization_parameters']['zero_points'][0]
+            image = (image - zero_point) * scale
+        else:
+            image = image / 255.0
+    else:
+        image = image.astype(np.uint8)
+        if 'quantization_parameters' in input_dict and input_dict['quantization_parameters']['scales'].size > 0:
+            scale = input_dict['quantization_parameters']['scales'][0]
+            zero_point = input_dict['quantization_parameters']['zero_points'][0]
+            image = ((image - zero_point) * scale).astype(np.uint8)
+
+    # Add batch dimension
+    image = np.expand_dims(image, axis=0)
+
+    return image
 
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-
-#输出可用的GPU数量
 print("Num GPUs Available: ", len(gpus))
-#查询GPU设备
+
 
 
 if gpus:
@@ -33,49 +105,39 @@ if gpus:
     except RuntimeError as e:
         print(e)
 
-tf_lite_path = './mobilenetDetv1.tflite'
+print("*"*50)
 
-# Load the TFLite model and allocate tensors
-interpreter = tf.lite.Interpreter(model_path=tf_lite_path, num_threads=24)
-interpreter.allocate_tensors()
 
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
 
 # print('Input Details:', input_details)
 # print('Output Details:', output_details)
 
 # Load and preprocess the image
-img = cv2.imread('TEST.jpg')
-img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
-img = cv2.resize(img, dsize=(300, 300))     # Resize to (224, 224) for MobileNetV2
+# img = cv2.imread('Server\TEST.jpg')
+# img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
+# img = cv2.resize(img, dsize=(300, 300))     # Resize to (224, 224) for MobileNetV2
 
-# Ensure the image is of type uint8
-input_data = np.expand_dims(img, axis=0)  # Add a batch dimension
 
-# Check if the input tensor expects uint8 data and convert if necessary
-if input_details[0]['dtype'] == np.uint8:
-    input_data = np.array(input_data, dtype=np.uint8)  # Ensure the image is uint8
 
-# Set the input tensor
-interpreter.set_tensor(input_details[0]['index'], input_data)
+latency = []
+for i in range(11):
+    img = Image.open('Server\TEST.jpg')
+    input_details = models[i].get_input_details()
+    output_details = models[i].get_output_details()
 
-# Measure latency by invoking the interpreter multiple times for accurate measurement
-num_runs = 10
-total_time = 0
-
-for _ in range(num_runs):
     start_time = time.time()
-    interpreter.invoke()
-    end_time = time.time()
-    
-    total_time += (end_time - start_time) * 1000  # Convert to milliseconds
+    # Preprocess the image
+    img = preprocess_image(img, input_details)
+    # Set the image tensor as the input to the model
+    models[i].set_tensor(input_details[0]['index'], img)
+    # Run inference
+    models[i].invoke()
+    # Get the output tensor
+    output = models[0].get_tensor(output_details[0]['index'])
+    # Get the inference time
+    latency.append(time.time() - start_time)
 
-# Get the output from the model
-output_data = [interpreter.get_tensor(output_details[i]['index']) for i in range(len(output_details))]
+for i in range(11):
+    print(f'{model_name[i]}: {latency[i] * 1000 } ms')
 
-# Calculate average inference time
-average_time = total_time / num_runs
 
-print(f'Average inference time over {num_runs} runs: {average_time:.2f} ms')
-print('Output Data:', output_data)
