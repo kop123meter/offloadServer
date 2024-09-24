@@ -13,6 +13,7 @@ import io # To convert bytes to image
 from PIL import Image, ImageFile 
 import time
 import threading
+import cv2
 
 from tensorflow.keras.mixed_precision import experimental as mixed_precision
 
@@ -106,6 +107,51 @@ def preprocess_image(image, model_input_details):
 
     return image
 
+def preprocess_image_cv2(image, model_input_details):
+    """
+    Preprocesses the image according to the model's input requirements using OpenCV for speed.
+
+    Args:
+    image (numpy.ndarray): The input image loaded using OpenCV (BGR format).
+    model_input_details (dict): A dictionary containing the model's input details.
+
+    Returns:
+    numpy.ndarray: The preprocessed image tensor.
+    """
+    input_dict = model_input_details[0]
+    input_shape = input_dict['shape']
+
+    # Resize the image if necessary to match model input dimensions
+    if image.shape[:2] != (input_shape[1], input_shape[2]):
+        image = cv2.resize(image, (input_shape[2], input_shape[1]), interpolation=cv2.INTER_LANCZOS4)
+
+    # Convert BGR to RGB since OpenCV loads images in BGR format
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    # If the model expects float32 input, convert and normalize the image
+    if input_dict['dtype'] == np.float32:
+        image = image.astype(np.float32)
+        if 'quantization_parameters' in input_dict and input_dict['quantization_parameters']['scales'].size > 0:
+            scale = input_dict['quantization_parameters']['scales'][0]
+            zero_point = input_dict['quantization_parameters']['zero_points'][0]
+            # Apply quantization scaling
+            image = (image - zero_point) * scale
+        else:
+            # Normalize the image to [0, 1] if no quantization parameters
+            image /= 255.0
+    else:
+        # If the model expects uint8, make sure the image is in uint8 format
+        image = image.astype(np.uint8)
+        if 'quantization_parameters' in input_dict and input_dict['quantization_parameters']['scales'].size > 0:
+            scale = input_dict['quantization_parameters']['scales'][0]
+            zero_point = input_dict['quantization_parameters']['zero_points'][0]
+            # Apply quantization scaling
+            image = ((image - zero_point) * scale).astype(np.uint8)
+
+    # Add batch dimension (1, H, W, C)
+    image = np.expand_dims(image, axis=0)
+
+    return image
 
 # Handle message from client
 def handle_client(client_socket):
@@ -202,7 +248,8 @@ def handle_client(client_socket):
         print(f"Image preprocessing time for decode: {(testEndTimer - testStartTimer) * 1000 } ms")
 
         timer1 = time.perf_counter()
-        input_data = preprocess_image(image, input_details)
+        #input_data = preprocess_image(image, input_details)
+        input_data = preprocess_image_cv2(np.array(image), input_details)
         timer2 = time.perf_counter()
         print(f"Image preprocessing time for preprocessing data: {(timer2 - timer1) * 1000} ms")
         

@@ -5,6 +5,7 @@ import time
 import tensorflow as tf
 from PIL import Image
 import cupy as cp
+
  
  
 print(tf.__version__)
@@ -112,6 +113,10 @@ def preprocess_image(image_path, model_input_details):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     # If the model expects float32 input, normalize and convert
+    print("*"*50)
+    print(input_dict['dtype'])
+    print("*"*50)
+    
     if input_dict['dtype'] == np.float32:
         image = image.astype(np.float32)
         if 'quantization_parameters' in input_dict and input_dict['quantization_parameters']['scales'].size > 0:
@@ -180,7 +185,7 @@ for i in range(11):
     output = models[i].get_tensor(output_details[0]['index'])
     # Get the inference time
     latency.append(time.time() - start_time)
-
+print("*"*50)
 for i in range(11):
     print(f'{model_name[i]}: {latency[i] * 1000 } ms')
 
