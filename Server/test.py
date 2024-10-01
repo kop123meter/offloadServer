@@ -19,7 +19,10 @@ print(tf.test.is_gpu_available())
 
 
 print("*"*50)
-models = {
+def load_models():
+    # Load the TFLite model and allocate tensors.
+    
+    return {
           0:tf.lite.Interpreter(model_path=".\deconv_fin_munet.tflite"),
           1:tf.lite.Interpreter(model_path=".\mobilenet_v2_1.0_224_quant.tflite"),
           2:tf.lite.Interpreter(model_path=".\mobilenet_v1_1.0_224_quant.tflite"),
@@ -32,6 +35,13 @@ models = {
           9:tf.lite.Interpreter(model_path=".\model_metadata.tflite"),
           10:tf.lite.Interpreter(model_path=".\mnist.tflite")}
 
+ 
+    #print("TensorFlow Lite supports set_num_threads:", hasattr(interpreter, 'set_num_threads'))
+    # input_details = interpreter.get_input_details()
+    
+    
+    # print("*"*50)
+
 model_name ={0:"deconv_fin_munet",
              1:"mobilenet_v2_1.0_224_quant",
              2:"mobilenet_v1_1.0_224_quant",
@@ -43,7 +53,7 @@ model_name ={0:"deconv_fin_munet",
              8:"deeplabv3",
              9:"model_metadata",
              10:"mnist"}
- 
+models = load_models()
 for i in range(11):
     models[i].allocate_tensors()
     print(f"{model_name[i]} Model Loaded Successfully!")

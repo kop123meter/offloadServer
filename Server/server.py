@@ -40,12 +40,23 @@ if gpus:
         print(e)
 
 
+model_name ={0:"deconv_fin_munet",
+             1:"mobilenet_v2_1.0_224_quant",
+             2:"mobilenet_v1_1.0_224_quant",
+             3:"ssd_mobilenet_v1_1_metadata_1",
+             4:"mobilenetDetv1",
+             5:"efficientclass-lite0",
+             6:"inception_v1_224_quant",
+             7:"mobilenetClassv1",
+             8:"deeplabv3",
+             9:"model_metadata",
+             10:"mnist"}
 
 
 
-
-# Load the TFLite model and allocate tensors.
-models = {
+def load_models():
+    # Load the TFLite model and allocate tensors.
+    return {
           0:tf.lite.Interpreter(model_path=".\deconv_fin_munet.tflite"),
           1:tf.lite.Interpreter(model_path=".\mobilenet_v2_1.0_224_quant.tflite"),
           2:tf.lite.Interpreter(model_path=".\mobilenet_v1_1.0_224_quant.tflite"),
@@ -58,13 +69,13 @@ models = {
           9:tf.lite.Interpreter(model_path=".\model_metadata.tflite"),
           10:tf.lite.Interpreter(model_path=".\mnist.tflite")}
 
-for interpreter in models.values():
-    interpreter.allocate_tensors()
+    
     #print("TensorFlow Lite supports set_num_threads:", hasattr(interpreter, 'set_num_threads'))
     # input_details = interpreter.get_input_details()
     
     
     # print("*"*50)
+
 
 def preprocess_image(image, model_input_details):
     """
@@ -159,6 +170,10 @@ def handle_client(client_socket):
     This function handles the client connection and processes the data received from the client.Data
     Data format: model_index:data_length:image_data
     '''
+    models = load_models()
+    for interpreter in models.values():
+        interpreter.allocate_tensors()
+    print("Modle Load Successful!")
     try:
         # Receive data from the client
         data = b""
@@ -201,6 +216,8 @@ def handle_client(client_socket):
 
         # Get the appropriate model interpreter
         interpreter = models[model_index]
+        current_model_name = model_name[model_index]
+        print("Current Model Name: ", current_model_name)
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
         
@@ -248,8 +265,8 @@ def handle_client(client_socket):
         print(f"Image preprocessing time for decode: {(testEndTimer - testStartTimer) * 1000 } ms")
 
         timer1 = time.perf_counter()
-        #input_data = preprocess_image(image, input_details)
-        input_data = preprocess_image_cv2(np.array(image), input_details)
+        input_data = preprocess_image(image, input_details)
+        #input_data = preprocess_image_cv2(np.array(image), input_details)
         timer2 = time.perf_counter()
         print(f"Image preprocessing time for preprocessing data: {(timer2 - timer1) * 1000} ms")
         
@@ -301,15 +318,17 @@ def startServer():
     s.listen(5)  # allow 5 connections to be queued
     print("Server is running")
     print("Waiting for client to send data")
+    client_count =0
 
     while True:
         conn, addr = s.accept()
         print('Connected by', addr)
         # handle_client(conn)
-
+        print("*" * 50, client_count, "*" *50)
         # Start a new thread to handle the client
         client_thread = threading.Thread(target=handle_client, args=(conn,))
         client_thread.start()
+        client_count = client_count + 1
 
 
 
