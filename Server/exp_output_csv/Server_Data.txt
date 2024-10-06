@@ -1,0 +1,302 @@
+PS C:\Users\lize7\OneDrive\文档\GitHub\offloadServer\Server> & D:/anaconda/envs/py38/python.exe c:/Users/lize7/OneDrive/文档/GitHub/offloadServer/Server/collectdata.py
+Server listening on port 6767
+Connection from ('192.168.1.4', 47084)
+Reward: -0.96, Triangle Count: 1.0, Total Latency: 0.7838457241464808
+
+Connection closed with ('192.168.1.4', 47084)
+Connection from ('192.168.1.4', 47096)
+Reward: -0.56, Triangle Count: 1.0, Total Latency: 0.625109044649193
+
+Connection closed with ('192.168.1.4', 47096)
+Connection from ('192.168.1.4', 47100)
+Reward: -0.52, Triangle Count: 1.0, Total Latency: 0.6088380956875213
+
+Connection closed with ('192.168.1.4', 47100)
+Connection from ('192.168.1.4', 50464)
+Reward: -0.49, Triangle Count: 1.0, Total Latency: 0.596807684659164
+
+Connection closed with ('192.168.1.4', 50464)
+Connection from ('192.168.1.4', 50466)
+Reward: -1.11, Triangle Count: 0.4233698546886444, Total Latency: 0.6118585074774425
+
+Connection closed with ('192.168.1.4', 50466)
+Connection from ('192.168.1.4', 50468)
+Reward: -1.26, Triangle Count: 0.4121778607368469, Total Latency: 0.6699475460795187
+
+Connection closed with ('192.168.1.4', 50468)
+Connection from ('192.168.1.4', 50476)
+Reward: -1.19, Triangle Count: 0.4121778607368469, Total Latency: 0.6407617537214009
+
+Connection closed with ('192.168.1.4', 50476)
+Connection from ('192.168.1.4', 59348)
+Reward: -1.34, Triangle Count: 0.28790849447250366, Total Latency: 0.6500401673262154
+
+Connection closed with ('192.168.1.4', 59348)
+Connection from ('192.168.1.4', 59354)
+Reward: -1.28, Triangle Count: 0.28790849447250366, Total Latency: 0.6255367941722633
+
+Connection closed with ('192.168.1.4', 59354)
+Connection from ('192.168.1.4', 59364)
+Reward: -0.63, Triangle Count: 0.993139922618866, Total Latency: 0.6511135746693419
+
+Connection closed with ('192.168.1.4', 59364)
+Connection from ('192.168.1.4', 59368)
+Reward: -0.66, Triangle Count: 0.993139922618866, Total Latency: 0.6622002436433886
+
+Connection closed with ('192.168.1.4', 59368)
+Connection from ('192.168.1.4', 50874)
+Reward: -0.71, Triangle Count: 0.993139922618866, Total Latency: 0.6831221959274033
+
+Connection closed with ('192.168.1.4', 50874)
+Connection from ('192.168.1.4', 50888)
+Reward: -0.79, Triangle Count: 1.0, Total Latency: 0.7157223315302179       
+
+Connection closed with ('192.168.1.4', 50888)
+Connection from ('192.168.1.4', 50898)
+Reward: -0.42, Triangle Count: 1.0, Total Latency: 0.5686892435617358       
+
+Connection closed with ('192.168.1.4', 50898)
+Connection from ('192.168.1.4', 50908)
+Reward: -0.55, Triangle Count: 1.0, Total Latency: 0.6203177816688114       
+
+Connection closed with ('192.168.1.4', 50908)
+Connection from ('192.168.1.4', 35894)
+Reward: -0.74, Triangle Count: 1.0, Total Latency: 0.69433516883307
+
+Connection closed with ('192.168.1.4', 35894)
+Connection from ('192.168.1.4', 35896)
+Reward: -0.96, Triangle Count: 1.0, Total Latency: 0.7851897405429974       
+
+Connection closed with ('192.168.1.4', 35896)
+Connection from ('192.168.1.4', 35902)
+Reward: -0.8, Triangle Count: 1.0, Total Latency: 0.7208453275830258        
+
+Connection closed with ('192.168.1.4', 35902)
+Connection from ('192.168.1.4', 35912)
+Reward: -0.81, Triangle Count: 1.0, Total Latency: 0.7245560376733646
+
+Connection closed with ('192.168.1.4', 35912)
+Connection from ('192.168.1.4', 33842)
+Reward: -0.65, Triangle Count: 1.0, Total Latency: 0.6606110376035174       
+
+Connection closed with ('192.168.1.4', 33842)
+Connection from ('192.168.1.4', 33858)
+Reward: -0.69, Triangle Count: 1.0, Total Latency: 0.6754978910436463       
+
+Connection closed with ('192.168.1.4', 33858)
+Connection from ('192.168.1.4', 33860)
+Reward: -0.83, Triangle Count: 1.0, Total Latency: 0.7330611848529592
+
+Connection closed with ('192.168.1.4', 33860)
+Connection from ('192.168.1.4', 33864)
+Reward: -0.8, Triangle Count: 1.0, Total Latency: 0.7204276544780926        
+
+Connection closed with ('192.168.1.4', 33864)
+Connection from ('192.168.1.4', 59762)
+Reward: -0.4, Triangle Count: 0.9908531904220581, Total Latency: 0.5562798757219016
+
+Connection closed with ('192.168.1.4', 59762)
+Connection from ('192.168.1.4', 59778)
+Reward: -0.64, Triangle Count: 0.9908531904220581, Total Latency: 0.6508362867429359
+
+Connection closed with ('192.168.1.4', 59778)
+Connection from ('192.168.1.4', 59794)
+Reward: -0.63, Triangle Count: 0.9897098541259766, Total Latency: 0.6494992060173986
+
+Connection closed with ('192.168.1.4', 59794)
+Connection from ('192.168.1.4', 59800)
+Reward: -0.88, Triangle Count: 1.0, Total Latency: 0.7509689522242123
+
+Connection closed with ('192.168.1.4', 59800)
+Connection from ('192.168.1.4', 39664)
+Reward: -0.91, Triangle Count: 1.0, Total Latency: 0.7657197154039825       
+
+Connection closed with ('192.168.1.4', 39664)
+Connection from ('192.168.1.4', 39666)
+Reward: -0.94, Triangle Count: 1.0, Total Latency: 0.774567639154972        
+
+Connection closed with ('192.168.1.4', 39666)
+Connection from ('192.168.1.4', 39670)
+Reward: -0.91, Triangle Count: 1.0, Total Latency: 0.7637386270054421       
+
+Connection closed with ('192.168.1.4', 39670)
+Connection from ('192.168.1.4', 39678)
+Reward: -1.02, Triangle Count: 1.0, Total Latency: 0.8098375800996686
+
+Connection closed with ('192.168.1.4', 39678)
+Connection from ('192.168.1.4', 33050)
+Reward: -1.05, Triangle Count: 1.0, Total Latency: 0.8217341757263896       
+
+Connection closed with ('192.168.1.4', 33050)
+Connection from ('192.168.1.4', 33064)
+Reward: -1.11, Triangle Count: 1.0, Total Latency: 0.8425673521110769       
+
+Connection closed with ('192.168.1.4', 33064)
+Connection from ('192.168.1.4', 33070)
+Reward: -0.87, Triangle Count: 1.0, Total Latency: 0.7469002908342067       
+
+Connection closed with ('192.168.1.4', 33070)
+Connection from ('192.168.1.4', 33084)
+Reward: -0.85, Triangle Count: 1.0, Total Latency: 0.7395580322241747       
+
+Connection closed with ('192.168.1.4', 33084)
+Connection from ('192.168.1.4', 42640)
+Reward: -1.03, Triangle Count: 1.0, Total Latency: 0.8138193073113671       
+
+Connection closed with ('192.168.1.4', 42640)
+Connection from ('192.168.1.4', 42654)
+Reward: -1.03, Triangle Count: 1.0, Total Latency: 0.8133683366721072       
+
+Connection closed with ('192.168.1.4', 42654)
+Connection from ('192.168.1.4', 42656)
+Reward: -1.0, Triangle Count: 1.0, Total Latency: 0.8005642884702496
+
+Connection closed with ('192.168.1.4', 42656)
+Connection from ('192.168.1.4', 42664)
+Reward: -1.19, Triangle Count: 0.8606991171836853, Total Latency: 0.8189647183028139
+
+Connection closed with ('192.168.1.4', 42664)
+Connection from ('192.168.1.4', 33690)
+Reward: -1.23, Triangle Count: 0.8606991171836853, Total Latency: 0.8374836584062176
+
+Connection closed with ('192.168.1.4', 33690)
+Connection from ('192.168.1.4', 33706)
+Reward: -1.28, Triangle Count: 0.8606991171836853, Total Latency: 0.8565306057873504
+
+Connection closed with ('192.168.1.4', 33706)
+Connection from ('192.168.1.4', 33712)
+Reward: -1.08, Triangle Count: 1.0, Total Latency: 0.8302895838150929       
+
+Connection closed with ('192.168.1.4', 33712)
+Connection from ('192.168.1.4', 33724)
+Reward: -1.13, Triangle Count: 1.0, Total Latency: 0.8507367204371047
+
+Connection closed with ('192.168.1.4', 33724)
+Connection from ('192.168.1.4', 41848)
+Reward: -1.05, Triangle Count: 1.0, Total Latency: 0.820024870342155
+
+Connection closed with ('192.168.1.4', 41848)
+Connection from ('192.168.1.4', 41852)
+Reward: -1.19, Triangle Count: 0.993139922618866, Total Latency: 0.8735281846196133
+
+Connection closed with ('192.168.1.4', 41852)
+Connection from ('192.168.1.4', 41860)
+Reward: -0.93, Triangle Count: 0.993139922618866, Total Latency: 0.7712011097151708
+
+Connection closed with ('192.168.1.4', 41860)
+Connection from ('192.168.1.4', 41864)
+Reward: -0.94, Triangle Count: 0.993139922618866, Total Latency: 0.7720305554676253
+
+Connection closed with ('192.168.1.4', 41864)
+Connection from ('192.168.1.4', 44890)
+Reward: -1.01, Triangle Count: 1.0, Total Latency: 0.804307671885702        
+
+Connection closed with ('192.168.1.4', 44890)
+Connection from ('192.168.1.4', 44906)
+Reward: -0.82, Triangle Count: 1.0, Total Latency: 0.7280852478105081       
+
+Connection closed with ('192.168.1.4', 44906)
+Connection from ('192.168.1.4', 44922)
+Reward: -0.76, Triangle Count: 1.0, Total Latency: 0.7026691493677956       
+
+Connection closed with ('192.168.1.4', 44922)
+Connection from ('192.168.1.4', 44930)
+Reward: -0.85, Triangle Count: 1.0, Total Latency: 0.7381546545912343       
+
+Connection closed with ('192.168.1.4', 44930)
+Connection from ('192.168.1.4', 36786)
+Reward: -0.85, Triangle Count: 1.0, Total Latency: 0.7384500644907991       
+
+Connection closed with ('192.168.1.4', 36786)
+Connection from ('192.168.1.4', 36788)
+Reward: -0.84, Triangle Count: 1.0, Total Latency: 0.7374916272625772       
+
+Connection closed with ('192.168.1.4', 36788)
+Connection from ('192.168.1.4', 36804)
+Reward: -0.82, Triangle Count: 1.0, Total Latency: 0.7285000462985437       
+
+Connection closed with ('192.168.1.4', 36804)
+Connection from ('192.168.1.4', 36818)
+Reward: -0.83, Triangle Count: 1.0, Total Latency: 0.7329076200582834       
+
+Connection closed with ('192.168.1.4', 36818)
+Connection from ('192.168.1.4', 57932)
+Reward: -0.79, Triangle Count: 1.0, Total Latency: 0.7140383687697929       
+
+Connection closed with ('192.168.1.4', 57932)
+Connection from ('192.168.1.4', 57946)
+Reward: -0.87, Triangle Count: 1.0, Total Latency: 0.7490143082189858
+
+Connection closed with ('192.168.1.4', 57946)
+Connection from ('192.168.1.4', 57954)
+Reward: -0.91, Triangle Count: 1.0, Total Latency: 0.7627762691320816       
+
+Connection closed with ('192.168.1.4', 57954)
+Connection from ('192.168.1.4', 57960)
+Reward: -0.71, Triangle Count: 1.0, Total Latency: 0.6840455248814132       
+
+Connection closed with ('192.168.1.4', 57960)
+Connection from ('192.168.1.4', 49008)
+Reward: -0.89, Triangle Count: 1.0, Total Latency: 0.7549382785996045       
+
+Connection closed with ('192.168.1.4', 49008)
+Connection from ('192.168.1.4', 49024)
+Reward: -0.83, Triangle Count: 1.0, Total Latency: 0.7318787308848121       
+
+Connection closed with ('192.168.1.4', 49024)
+Connection from ('192.168.1.4', 49030)
+Reward: -0.85, Triangle Count: 1.0, Total Latency: 0.7404512480198923       
+
+Connection closed with ('192.168.1.4', 49030)
+Connection from ('192.168.1.4', 49032)
+Reward: -0.87, Triangle Count: 1.0, Total Latency: 0.7480201153617739       
+
+Connection closed with ('192.168.1.4', 49032)
+Connection from ('192.168.1.4', 48240)
+Reward: -0.86, Triangle Count: 1.0, Total Latency: 0.7421257584260826
+
+Connection closed with ('192.168.1.4', 48240)
+Connection from ('192.168.1.4', 48248)
+Reward: -0.76, Triangle Count: 1.0, Total Latency: 0.7056040695368658       
+
+Connection closed with ('192.168.1.4', 48248)
+Connection from ('192.168.1.4', 48252)
+Reward: -0.59, Triangle Count: 1.0, Total Latency: 0.6341158760427947       
+
+Connection closed with ('192.168.1.4', 48252)
+Connection from ('192.168.1.4', 48268)
+Reward: -0.63, Triangle Count: 1.0, Total Latency: 0.6509883029848736       
+
+Connection closed with ('192.168.1.4', 48268)
+Connection from ('192.168.1.4', 55236)
+Reward: -0.66, Triangle Count: 1.0, Total Latency: 0.6620195964347797       
+
+Connection closed with ('192.168.1.4', 55236)
+Connection from ('192.168.1.4', 55252)
+Reward: -0.77, Triangle Count: 1.0, Total Latency: 0.7078850915435848       
+
+Connection closed with ('192.168.1.4', 55252)
+Connection from ('192.168.1.4', 55266)
+Reward: -0.79, Triangle Count: 1.0, Total Latency: 0.7160202879105274       
+
+Connection closed with ('192.168.1.4', 55266)
+Connection from ('192.168.1.4', 55278)
+Reward: -0.81, Triangle Count: 1.0, Total Latency: 0.724520707785385        
+
+Connection closed with ('192.168.1.4', 55278)
+Connection from ('192.168.1.4', 37498)
+Reward: -0.34, Triangle Count: 1.0, Total Latency: 0.5374618629364809       
+
+Connection closed with ('192.168.1.4', 37498)
+Connection from ('192.168.1.4', 37508)
+Reward: -0.65, Triangle Count: 1.0, Total Latency: 0.6619116853189738       
+
+Connection closed with ('192.168.1.4', 37508)
+Connection from ('192.168.1.4', 37512)
+Reward: -0.58, Triangle Count: 1.0, Total Latency: 0.6325334589000834       
+
+Connection closed with ('192.168.1.4', 37512)
+Connection from ('192.168.1.4', 37528)
+Reward: -0.58, Triangle Count: 1.0, Total Latency: 0.633897363731996        
+
+Connection closed with ('192.168.1.4', 37528)

@@ -35,6 +35,7 @@ if gpus:
         for gpu in gpus:
             tf.config.experimental.set_visible_devices(devices=gpu,device_type='GPU')
             tf.config.experimental.set_memory_growth(gpu, True)
+            print(tf.test.is_gpu_available())
             print("GPU Setting up!")
     except RuntimeError as e:
         print(e)

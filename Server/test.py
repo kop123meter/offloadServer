@@ -5,6 +5,7 @@ import time
 import tensorflow as tf
 from PIL import Image
 import cupy as cp
+import pandas
 
  
  
@@ -15,6 +16,8 @@ print('GPU:',tf.config.list_physical_devices('GPU'))
 print('CPU:',tf.config.list_physical_devices(device_type='CPU'))
 print(tf.config.list_physical_devices('GPU'))
 print(tf.test.is_gpu_available())
+devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_visible_devices(devices=devices[0],device_type='GPU')
 
 
 
