@@ -13,9 +13,9 @@ from colorama import Fore, Style
 
 class TwoClientsServer:
 
-    MAX_ITER = 15 # 15
+    MAX_ITER = 50 # 50
     EXPLORATION_n = 5
-    NUM_TASKS = 5
+    NUM_TASKS = 6
     PORT = 1909  
 
 
@@ -42,7 +42,7 @@ class TwoClientsServer:
 
                 python_client = PythonClient(num_tasks=self.NUM_TASKS,
                                          max_iter=self.MAX_ITER,
-                                         host='192.168.1.3',
+                                         host='192.168.1.6',
                                          port=self.PORT,
                                          output_dir=self.output_dir,
                                          stop_event=self.stop_event)
